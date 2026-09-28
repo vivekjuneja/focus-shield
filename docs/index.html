@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Focus Shield</title>
+<meta name="description" content="Focus Shield is a free Mac app that blocks YouTube, Netflix, X and Prime Video in Chrome and Safari — and reminds you why, when you're tempted to turn it off.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234B43C8'/%3E%3Cpath d='M16 6l8 3v6c0 5-3.4 9-8 11-4.6-2-8-6-8-11V9z' fill='white'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap">
+<style>
+  :root {
+    --fog: #ECEDF3;
+    --paper: #F7F7FB;
+    --ink: #17172B;
+    --slate: #5D5F79;
+    --line: #D6D7E3;
+    --indigo: #4B43C8;
+    --indigo-soft: #E2E0FA;
+    --sky: #1A8FD0;
+    --alarm: #D8483C;
+    --on-indigo: #FFFFFF;
+    --shadow: 0 1px 2px rgba(23,23,43,.06), 0 12px 32px -12px rgba(23,23,43,.18);
+    --serif: "Newsreader", "Iowan Old Style", "Palatino", Georgia, serif;
+    --sans: "Atkinson Hyperlegible", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    --measure: 64ch;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --fog: #0F0F1D; --paper: #17172B; --ink: #ECEBF7; --slate: #A2A3C0; --line: #2A2A45;
+      --indigo: #A29CFF; --indigo-soft: #25234A; --sky: #62C1F2; --alarm: #FF7A6E; --on-indigo: #0F0F1D;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px -16px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --fog: #0F0F1D; --paper: #17172B; --ink: #ECEBF7; --slate: #A2A3C0; --line: #2A2A45;
+    --indigo: #A29CFF; --indigo-soft: #25234A; --sky: #62C1F2; --alarm: #FF7A6E; --on-indigo: #0F0F1D;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px -16px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--fog); color: var(--ink);
+    font: 18px/1.6 var(--sans); -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: clamp(16px, 5vw, 48px); }
+  a { color: var(--indigo); }
+  :focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; border-radius: 6px; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 400; line-height: 1.1; text-wrap: balance; margin: 0; }
+  h2 { font-size: clamp(34px, 5vw, 52px); letter-spacing: -.015em; }
+  h2 em, h1 em { font-style: italic; color: var(--indigo); }
+  p { margin: 0; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--slate); }
+  .lede { font-size: 20px; color: var(--slate); max-width: var(--measure); }
+  section { padding-block: clamp(72px, 10vw, 128px); }
+  .section-head { display: grid; gap: 18px; max-width: 760px; margin-bottom: 56px; }
+
+  /* ---------- Nav ---------- */
+  nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+        background: color-mix(in srgb, var(--fog) 82%, transparent);
+        backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--ink); text-decoration: none; font-size: 17px; }
+  .brand svg { flex: none; }
+  .nav-links { display: flex; gap: 24px; margin-left: auto; }
+  .nav-links a { color: var(--slate); text-decoration: none; font-size: 15px; }
+  .nav-links a:hover { color: var(--ink); }
+  .btn { display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; font: 700 16px/1 var(--sans);
+         text-decoration: none; padding: 16px 26px; border: 0; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .btn-primary { background: var(--indigo); color: var(--on-indigo); box-shadow: var(--shadow); }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-small { padding: 10px 18px; font-size: 14px; }
+  @media (max-width: 760px) { .nav-links { display: none; } nav .btn { margin-left: auto; } }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-block: clamp(56px, 8vw, 104px) clamp(64px, 8vw, 96px); }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+  .hero h1 { font-size: clamp(44px, 7vw, 84px); letter-spacing: -.025em; line-height: 1.02; }
+  .hero-copy { display: grid; gap: 28px; }
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+  .cta-meta { font-size: 14px; color: var(--slate); line-height: 1.5; }
+  .trust-strip { display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: 15px; color: var(--slate); padding: 0; margin: 0; list-style: none; }
+  .trust-strip li { display: flex; align-items: center; gap: 8px; }
+  .trust-strip svg { color: var(--indigo); flex: none; }
+  @media (max-width: 880px) { .hero .wrap { grid-template-columns: 1fr; } }
+
+  /* Stage: a Mac menu bar, crowded with noise that drifts off */
+  .stage { position: relative; aspect-ratio: 1 / 1; max-width: 100%; border-radius: 28px;
+           background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
+  .menubar { position: absolute; inset: 0 0 auto 0; height: 34px; display: flex; align-items: center; justify-content: flex-end;
+             gap: 16px; padding-inline: 18px; font-size: 13px; color: var(--slate);
+             background: color-mix(in srgb, var(--paper) 70%, var(--line)); border-bottom: 1px solid var(--line); }
+  .menubar .shield-icon { color: var(--ink); display: flex; }
+  .dropdown { position: absolute; top: 42px; right: 58px; width: min(290px, 78%); background: var(--paper); border: 1px solid var(--line);
+              border-radius: 12px; box-shadow: var(--shadow); padding: 8px; font-size: 14px; opacity: 1; transform: none;
+              transition: opacity .8s ease 1.9s, transform .8s ease 1.9s; }
+  .dropdown div { padding: 7px 10px; border-radius: 7px; }
+  .dropdown .dim { color: var(--slate); }
+  .dropdown .status { font-weight: 700; color: var(--ink); }
+  .dropdown .hl { background: var(--indigo); color: var(--on-indigo); }
+  .dropdown hr { border: 0; border-top: 1px solid var(--line); margin: 6px 4px; }
+  .stage-caption { position: absolute; left: 28px; right: 28px; bottom: 26px; font-family: var(--serif); font-style: italic;
+                   font-size: clamp(22px, 2.6vw, 30px); line-height: 1.2; color: var(--ink); transition: opacity .8s ease 2.2s; }
+  .noise { position: absolute; display: flex; align-items: center; gap: 8px; padding: 9px 13px; border-radius: 12px; font-size: 13px;
+           background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); white-space: nowrap; color: var(--ink);
+           transition: transform 1.4s cubic-bezier(.4,0,.2,1), opacity 1.2s ease; }
+  .noise b { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+             background: var(--alarm); color: #fff; font-size: 11px; }
+  .stage:not(.calm) .dropdown { opacity: 0; transform: translateY(-6px); transition: none; }
+  .stage:not(.calm) .stage-caption { opacity: 0; transition: none; }
+  .stage:not(.calm) .noise { animation: jitter .5s ease-in-out infinite alternate; }
+  .stage.calm .noise { opacity: 0; }
+  @keyframes jitter { to { translate: 0 -3px; } }
+  @media (prefers-reduced-motion: reduce) {
+    .noise { display: none; }
+    .stage .dropdown, .stage .stage-caption { opacity: 1 !important; transform: none !important; }
+    html { scroll-behavior: auto; }
+  }
+
+  /* ---------- Numbers ---------- */
+  .numbers { background: var(--paper); border-block: 1px solid var(--line); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .stat { display: grid; align-content: start; gap: 14px; padding: 8px 32px 8px 0; }
+  .stat + .stat { padding-left: 32px; border-left: 1px solid var(--line); }
+  .stat .big { font-family: var(--serif); font-size: clamp(52px, 6vw, 76px); line-height: 1; letter-spacing: -.03em; color: var(--indigo); }
+  .stat p { color: var(--ink); max-width: 34ch; }
+  .stat cite { font-size: 14px; color: var(--slate); font-style: normal; }
+  @media (max-width: 820px) {
+    .stats { grid-template-columns: 1fr; gap: 36px; }
+    .stat, .stat + .stat { padding: 0; border: 0; }
+    .stat + .stat { padding-top: 36px; border-top: 1px solid var(--line); }
+  }
+
+  /* ---------- Demo ---------- */
+  .demo-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(32px, 6vw, 72px); align-items: start; }
+  .flow { list-style: none; padding: 0; margin: 0; display: grid; gap: 22px; counter-reset: flow; }
+  .flow li { display: grid; grid-template-columns: 36px 1fr; gap: 16px; counter-increment: flow; }
+  .flow li::before { content: counter(flow); display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+                     border: 1px solid var(--line); font-family: var(--serif); font-size: 18px; color: var(--indigo); background: var(--paper); }
+  .flow strong { display: block; }
+  .flow span { color: var(--slate); font-size: 16px; }
+  @media (max-width: 880px) { .demo-grid { grid-template-columns: 1fr; } }
+
+  /* The app window: always dark, like the real app */
+  .appwin { position: relative; border-radius: 22px; overflow: hidden; color: #F3F2FF; background: #0B0B19;
+            box-shadow: 0 30px 80px -30px rgba(15,15,40,.6); border: 1px solid rgba(255,255,255,.08); isolation: isolate; }
+  .appwin::before, .appwin::after { content: ""; position: absolute; width: 60%; aspect-ratio: 1; border-radius: 50%;
+            filter: blur(70px); opacity: .6; z-index: -1; transition: background 1s ease; }
+  .appwin::before { top: -25%; left: -15%; background: var(--g1, #6D29D9); }
+  .appwin::after { bottom: -25%; right: -15%; background: var(--g2, #0DA5E8); }
+  .appwin[data-palette="1"] { --g1: #ED4A78; --g2: #FA9E3B; }
+  .appwin[data-palette="2"] { --g1: #0FBA82; --g2: #3B66ED; }
+  .traffic { display: flex; gap: 8px; padding: 14px 16px 0; }
+  .traffic i { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.18); }
+  .appbody { padding: 18px clamp(20px, 4vw, 36px) 32px; display: grid; gap: 22px; min-height: 560px; align-content: start; }
+  .dots { display: flex; justify-content: center; gap: 7px; }
+  .dots i { height: 7px; width: 7px; border-radius: 99px; background: rgba(255,255,255,.22); transition: all .35s ease; }
+  .dots i.on { background: #fff; }
+  .dots i.now { width: 24px; }
+  .appeyebrow { text-align: center; font-size: 11px; letter-spacing: .15em; font-weight: 700; color: rgba(255,255,255,.6); }
+  .factcard { padding: 26px; border-radius: 22px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+              backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: grid; gap: 14px; animation: slidein .5s ease both; }
+  @keyframes slidein { from { opacity: 0; transform: translateX(24px); } }
+  .ficon { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center; color: #fff;
+           background: linear-gradient(135deg, var(--g1, #6D29D9), var(--g2, #0DA5E8)); }
+  .factcard h3 { font-size: clamp(28px, 3.4vw, 36px); font-weight: 500; color: #fff; }
+  .factcard p { color: rgba(255,255,255,.84); font-size: 16.5px; line-height: 1.6; }
+  .factcard cite { font-size: 13px; color: rgba(255,255,255,.55); }
+  .ask { text-align: center; color: rgba(255,255,255,.8); font-size: 15px; }
+  .appbtns { display: grid; gap: 10px; }
+  .pill { font: 700 15px/1.2 var(--sans); padding: 14px 18px; border-radius: 999px; cursor: pointer; transition: background .15s, opacity .2s; }
+  .pill-solid { background: #fff; color: #111; border: 0; }
+  .pill-ghost { background: rgba(255,255,255,.08); color: rgba(255,255,255,.92); border: 1px solid rgba(255,255,255,.18); }
+  .pill-ghost:disabled { opacity: .45; cursor: default; }
+  .durations { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dur { display: grid; gap: 4px; padding: 20px 12px; border-radius: 18px; text-align: center; cursor: pointer; color: #fff;
+         background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); font: inherit; }
+  .dur strong { font-size: 19px; }
+  .dur span { font-size: 12px; color: rgba(255,255,255,.6); }
+  .dur:hover, .pill-ghost:not(:disabled):hover { background: rgba(255,255,255,.14); }
+  .center { text-align: center; display: grid; gap: 14px; justify-items: center; animation: slidein .5s ease both; }
+  .center h3 { font-size: 30px; color: #fff; font-weight: 500; }
+  .center p { color: rgba(255,255,255,.7); }
+  .demo-note { margin-top: 14px; font-size: 14px; color: var(--slate); }
+
+  /* ---------- Safety ---------- */
+  .safety { background: var(--paper); border-block: 1px solid var(--line); }
+  .promises { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 48px; margin-bottom: 72px; }
+  .promise { display: grid; grid-template-columns: 28px 1fr; gap: 14px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .promise svg { color: var(--indigo); margin-top: 3px; }
+  .promise strong { display: block; margin-bottom: 4px; }
+  .promise p { color: var(--slate); font-size: 16px; }
+  @media (max-width: 760px) { .promises { grid-template-columns: 1fr; } }
+  .dialogs { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  @media (max-width: 880px) { .dialogs { grid-template-columns: 1fr; } }
+  .dialog-block { display: grid; gap: 18px; align-content: start; }
+  .dialog-block h3 { font-size: 26px; }
+  .dialog-block p { color: var(--slate); font-size: 16px; max-width: 52ch; }
+  .macalert { width: min(100%, 340px); background: var(--fog); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+              padding: 22px 20px 18px; display: grid; gap: 10px; justify-items: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, var(--sans); }
+  .macalert .ico { width: 56px; height: 56px; }
+  .macalert strong { font-size: 14px; line-height: 1.35; }
+  .macalert small { font-size: 12px; color: var(--slate); line-height: 1.45; }
+  .macalert .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-top: 6px; }
+  .macalert .row span { padding: 6px; border-radius: 7px; font-size: 13px; background: var(--paper); border: 1px solid var(--line); }
+  .macalert .row .def { background: var(--indigo); color: var(--on-indigo); border-color: transparent; }
+  .plain { background: var(--indigo-soft); border-radius: 14px; padding: 16px 18px; font-size: 16px; color: var(--ink) !important; }
+
+  /* ---------- Install ---------- */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .steps li { display: grid; gap: 12px; align-content: start; counter-increment: step; }
+  .steps li::before { content: "Step " counter(step); font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--indigo); }
+  .steps .art { height: 150px; border-radius: 18px; background: var(--paper); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
+  .steps h3 { font-size: 24px; }
+  .steps p { font-size: 16px; color: var(--slate); }
+  @media (max-width: 980px) { .steps { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+  .install-cta { margin-top: 56px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding: 28px; border-radius: 22px;
+                 background: var(--paper); border: 1px solid var(--line); }
+  .install-cta p { flex: 1 1 280px; color: var(--slate); font-size: 16px; }
+
+  /* ---------- FAQ ---------- */
+  .faq { display: grid; gap: 0; max-width: 820px; }
+  .faq details { border-top: 1px solid var(--line); padding: 20px 0; }
+  .faq details:last-child { border-bottom: 1px solid var(--line); }
+  .faq summary { cursor: pointer; font-family: var(--serif); font-size: 23px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--indigo); font-family: var(--sans); flex: none; }
+  .faq details[open] summary::after { content: "–"; }
+  .faq details p { margin-top: 12px; color: var(--slate); max-width: var(--measure); font-size: 17px; }
+
+  /* ---------- Closing & footer ---------- */
+  .closing { text-align: left; }
+  .closing blockquote { margin: 0 0 40px; font-family: var(--serif); font-size: clamp(30px, 4.4vw, 50px); line-height: 1.15; max-width: 22ch; text-wrap: balance; }
+  .closing blockquote footer { margin-top: 16px; font-family: var(--sans); font-size: 15px; color: var(--slate); }
+  .shelf { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0; margin: 20px 0 0; }
+  .shelf li { font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--slate); }
+  .shelf li i { color: var(--ink); }
+  footer.site { border-top: 1px solid var(--line); padding-block: 36px; font-size: 14px; color: var(--slate); }
+  footer.site .wrap { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="shield" viewBox="0 0 24 24"><path d="M12 2.5l8 3v6.2c0 5.1-3.4 8.9-8 10.3-4.6-1.4-8-5.2-8-10.3V5.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 2.5v19.5c-4.6-1.4-8-5.2-8-10.3V5.5z" fill="currentColor"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="download" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<nav aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#4B43C8"/><g transform="translate(4 4)" color="#fff"><use href="#shield"/></g></svg>
+      Focus Shield
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#safe">Is it safe?</a>
+      <a href="#install">Install</a>
+      <a href="#faq">Questions</a>
+    </div>
+    <a class="btn btn-primary btn-small download-link" href="#install">Download for Mac</a>
+  </div>
+</nav>
+
+<main id="top">
+  <!-- Hero -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">A free app for your Mac</p>
+        <h1>The internet is built to take your attention. <em>Take it back.</em></h1>
+        <p class="lede">Focus Shield sits quietly in your Mac's menu bar and blocks YouTube, Netflix, X and Prime Video. When you're tempted to switch it off, it shows you three short ideas from the best books on attention, then asks if you're sure.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary download-link" href="#install">
+            <svg width="20" height="20" aria-hidden="true"><use href="#download"/></svg>
+            Download Focus Shield
+          </a>
+          <p class="cta-meta">Free · macOS 13 Ventura or newer<br>Works on Apple silicon and Intel Macs</p>
+        </div>
+        <ul class="trust-strip" aria-label="Why you can trust it">
+          <li><svg width="18" height="18" aria-hidden="true"><use href="#check"/></svg>Checked by Apple</li>
+          <li><svg width="18" height="18" aria-hidden="true"><use href="#check"/></svg>No account, no sign-up</li>
+          <li><svg width="18" height="18" aria-hidden="true"><use href="#check"/></svg>Nothing leaves your Mac</li>
+        </ul>
+      </div>
+
+      <div class="stage" id="stage" aria-label="Illustration: distracting notifications fade away, leaving the Focus Shield menu">
+        <div class="menubar" aria-hidden="true">
+          <span>Wi-Fi</span><span class="shield-icon"><svg width="16" height="16"><use href="#shield"/></svg></span><span>Mon 9:41</span>
+        </div>
+        <div class="dropdown" aria-hidden="true">
+          <div class="status">Shield is ON</div>
+          <div class="dim">Blocking YouTube, Netflix, X and Prime Video</div>
+          <hr>
+          <div class="hl">Pause the Shield…</div>
+          <hr>
+          <div>Launch at Login</div>
+        </div>
+        <div class="noise" style="top:22%;left:8%;--dx:-140px;--dy:-60px">Autoplay in 5… <b>▶</b></div>
+        <div class="noise" style="top:34%;left:44%;--dx:160px;--dy:-40px">12 new posts <b>12</b></div>
+        <div class="noise" style="top:47%;left:14%;--dx:-160px;--dy:30px">Trending now: you won't believe… </div>
+        <div class="noise" style="top:58%;left:50%;--dx:170px;--dy:40px">Next episode starting <b>3</b></div>
+        <div class="noise" style="top:70%;left:6%;--dx:-150px;--dy:80px">Someone replied to you <b>1</b></div>
+        <div class="noise" style="top:40%;left:3%;--dx:-120px;--dy:-10px">Recommended for you</div>
+        <p class="stage-caption">Quiet. Just you and the thing you meant to do.</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Numbers -->
+  <section class="numbers" aria-labelledby="numbers-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Why this exists</p>
+        <h2 id="numbers-title">Your attention is the product. <em>Here's the evidence.</em></h2>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="big">47 sec</div>
+          <p>How long the average person now focuses on one screen before switching. In 2004 it was about two and a half minutes.</p>
+          <cite>Gloria Mark, <i>Attention Span</i></cite>
+        </div>
+        <div class="stat">
+          <div class="big">70%</div>
+          <p>Share of YouTube watch time driven by its recommendation algorithm. Most of the time, the next video chooses you.</p>
+          <cite>Neal Mohan, YouTube, 2018</cite>
+        </div>
+        <div class="stat">
+          <div class="big">4 harms</div>
+          <p>Social deprivation, sleep deprivation, attention fragmentation and addiction: the four harms of a phone-based life.</p>
+          <cite>Jonathan Haidt, <i>The Anxious Generation</i></cite>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works + live demo -->
+  <section id="how" aria-labelledby="how-title">
+    <div class="wrap demo-grid">
+      <div>
+        <div class="section-head" style="margin-bottom:40px">
+          <p class="eyebrow">How it works</p>
+          <h2 id="how-title">A pause button with <em>a conscience.</em></h2>
+          <p class="lede">Blocking is easy. The hard moment is when you want to turn the blocker off. That's where Focus Shield does its real work.</p>
+        </div>
+        <ol class="flow">
+          <li><div><strong>The shield is on by default.</strong><span>Open YouTube, Netflix, X or Prime Video in Chrome or Safari and you'll see a calm page instead.</span></div></li>
+          <li><div><strong>Want to pause it? First, three facts.</strong><span>One at a time, drawn from Jonathan Haidt, Johann Hari, Cal Newport, Gloria Mark and others. You never see the same one twice in a row.</span></div></li>
+          <li><div><strong>Each fact asks: are you sure?</strong><span>Keep focused with one click, or ask to be convinced further. You have to read each fact for a few seconds before you can continue.</span></div></li>
+          <li><div><strong>Still sure? Choose 30 minutes or an hour.</strong><span>When time is up, the shield switches itself back on. No need to remember.</span></div></li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="appwin" id="appwin" data-palette="0">
+          <div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="appbody" id="appbody" aria-live="polite"></div>
+        </div>
+        <p class="demo-note">This is a working copy of the real screen. Try it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Safety -->
+  <section class="safety" id="safe" aria-labelledby="safe-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Is it safe?</p>
+        <h2 id="safe-title">Straight answers, <em>before you download.</em></h2>
+        <p class="lede">You should be careful about what you install. Here is exactly what Focus Shield does, what it doesn't do, and what your Mac will show you along the way.</p>
+      </div>
+
+      <div class="promises">
+        <div class="promise"><svg width="24" height="24" aria-hidden="true"><use href="#check"/></svg>
+          <div><strong>Checked by Apple before you open it</strong><p>The app is signed with an Apple Developer ID and notarized. That means Apple scanned it for malicious software and confirmed who made it.</p></div></div>
+        <div class="promise"><svg width="24" height="24" aria-hidden="true"><use href="#check"/></svg>
+          <div><strong>Nothing leaves your Mac</strong><p>Focus Shield never connects to the internet. It doesn't record your browsing history, and there are no ads or tracking. The <a href="https://github.com/vivekjuneja/focus-shield">source code is public</a>, so anyone can check.</p></div></div>
+        <div class="promise"><svg width="24" height="24" aria-hidden="true"><use href="#check"/></svg>
+          <div><strong>No account, no password, no payment</strong><p>It never asks for your email, your Apple ID or your Mac password. If anything claiming to be Focus Shield asks for these, don't enter them.</p></div></div>
+        <div class="promise"><svg width="24" height="24" aria-hidden="true"><use href="#check"/></svg>
+          <div><strong>Easy to remove</strong><p>Pause the shield, choose Quit from its menu, then drag Focus Shield from your Applications folder to the Trash. That's all.</p></div></div>
+      </div>
+
+      <div class="dialogs">
+        <div class="dialog-block">
+          <h3>The first time you open it</h3>
+          <div class="macalert" role="img" aria-label="macOS dialog: Focus Shield is an app downloaded from the Internet. Apple checked it for malicious software and none was detected.">
+            <svg class="ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#4B43C8"/><g transform="translate(4 4)" color="#fff"><use href="#shield"/></g></svg>
+            <strong>“Focus Shield” is an app downloaded from the Internet. Are you sure you want to open it?</strong>
+            <small>Apple checked it for malicious software and none was detected.</small>
+            <div class="row"><span>Cancel</span><span class="def">Open</span></div>
+          </div>
+          <p class="plain">This is normal for any app you download outside the App Store. The line <b>“Apple checked it for malicious software and none was detected”</b> is what you want to see. Click <b>Open</b>.</p>
+        </div>
+        <div class="dialog-block">
+          <h3>When it asks about your browser</h3>
+          <div class="macalert" role="img" aria-label="macOS dialog: Focus Shield wants access to control Google Chrome.">
+            <svg class="ico" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#4B43C8"/><g transform="translate(4 4)" color="#fff"><use href="#shield"/></g></svg>
+            <strong>“Focus Shield” wants access to control “Google Chrome”.</strong>
+            <small>Focus Shield checks the tabs open in Chrome and Safari so it can block YouTube, Netflix, X and Prime Video while the shield is on.</small>
+            <div class="row"><span>Don’t Allow</span><span class="def">Allow</span></div>
+          </div>
+          <p class="plain">The wording sounds serious, but here's all it means. Focus Shield looks at the <b>web address</b> of each open tab. If it's a blocked site, it swaps that tab to the calm “shield is on” page. It doesn't read your passwords, messages or anything else, and it doesn't save the addresses anywhere. Click <b>Allow</b>, once for Chrome and once for Safari.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" aria-labelledby="install-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Install in about a minute</p>
+        <h2 id="install-title">Four steps. <em>No technical skills needed.</em></h2>
+      </div>
+      <ol class="steps">
+        <li>
+          <div class="art" aria-hidden="true">
+            <svg width="120" height="90" viewBox="0 0 120 90"><rect x="10" y="12" width="100" height="66" rx="12" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="2"/><rect x="34" y="32" width="52" height="26" rx="13" fill="#4B43C8"/><path d="M60 38v12m0 0l-5-5m5 5l5-5" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Download</h3>
+          <p>Click <b>Download Focus Shield</b> below. A file called <b>FocusShield.dmg</b> goes to your Downloads folder.</p>
+        </li>
+        <li>
+          <div class="art" aria-hidden="true">
+            <svg width="150" height="90" viewBox="0 0 150 90"><rect x="14" y="22" width="40" height="40" rx="10" fill="#4B43C8"/><g transform="translate(22 30) scale(1)" color="#fff"><use href="#shield" width="24" height="24"/></g><path d="M62 42h26m0 0l-7-7m7 7l-7 7" stroke="currentColor" stroke-opacity=".5" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M98 26h14l5 6h19v30a4 4 0 0 1-4 4H102a4 4 0 0 1-4-4z" fill="#1A8FD0" fill-opacity=".85"/><text x="117" y="54" text-anchor="middle" font-size="16" fill="#fff" font-family="sans-serif" font-weight="700">A</text></svg>
+          </div>
+          <h3>Drag to Applications</h3>
+          <p>Double-click the file. In the window that opens, drag the <b>Focus Shield</b> icon onto the <b>Applications</b> folder.</p>
+        </li>
+        <li>
+          <div class="art" aria-hidden="true">
+            <svg width="150" height="90" viewBox="0 0 150 90"><rect x="10" y="20" width="130" height="26" rx="6" fill="currentColor" fill-opacity=".08"/><text x="22" y="37" font-size="11" fill="currentColor" fill-opacity=".5" font-family="sans-serif">Wi-Fi</text><g transform="translate(64 25)" color="#4B43C8"><use href="#shield" width="16" height="16"/></g><circle cx="72" cy="33" r="15" fill="none" stroke="#4B43C8" stroke-width="2"/><text x="94" y="37" font-size="11" fill="currentColor" fill-opacity=".5" font-family="sans-serif">Mon 9:41</text><path d="M72 52v14" stroke="#4B43C8" stroke-width="2" stroke-dasharray="3 3"/><text x="72" y="80" text-anchor="middle" font-size="11" fill="currentColor" fill-opacity=".7" font-family="sans-serif">look up here</text></svg>
+          </div>
+          <h3>Open it</h3>
+          <p>Open <b>Applications</b> and double-click <b>Focus Shield</b>, then click <b>Open</b>. A small shield appears at the top-right of your screen, next to the clock.</p>
+        </li>
+        <li>
+          <div class="art" aria-hidden="true">
+            <svg width="130" height="90" viewBox="0 0 130 90"><rect x="15" y="14" width="100" height="62" rx="12" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="2"/><rect x="26" y="50" width="36" height="16" rx="5" fill="currentColor" fill-opacity=".1"/><rect x="68" y="50" width="36" height="16" rx="5" fill="#4B43C8"/><text x="86" y="61.5" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif" font-weight="700">Allow</text><rect x="30" y="24" width="70" height="6" rx="3" fill="currentColor" fill-opacity=".2"/><rect x="38" y="35" width="54" height="5" rx="2.5" fill="currentColor" fill-opacity=".12"/></svg>
+          </div>
+          <h3>Click Allow</h3>
+          <p>Open Chrome or Safari. When your Mac asks whether Focus Shield may control it, click <b>Allow</b>. You're done.</p>
+        </li>
+      </ol>
+
+      <div class="install-cta">
+        <a class="btn btn-primary download-link" href="#install">
+          <svg width="20" height="20" aria-hidden="true"><use href="#download"/></svg>
+          Download Focus Shield
+        </a>
+        <p>Version 1.0 · Free · About 2 MB · macOS 13 or newer. The download comes straight from the project's official GitHub page.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" aria-labelledby="faq-title" style="padding-top:0">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Questions</p>
+        <h2 id="faq-title">Things people ask.</h2>
+      </div>
+      <div class="faq">
+        <details><summary>Is it really free?</summary><p>Yes. No trial, no subscription, no in-app purchases, and no ads.</p></details>
+        <details><summary>Can I still shop on Amazon?</summary><p>Yes. Only Prime Video is blocked. Regular Amazon shopping pages work normally.</p></details>
+        <details><summary>What if I need YouTube for work or school?</summary><p>Click the shield in your menu bar, choose “Pause the Shield…”, read the three facts, and pick 30 minutes or 1 hour. The shield turns itself back on afterwards. You can also switch it back on early.</p></details>
+        <details><summary>Does it work in Firefox, Edge or Arc?</summary><p>Not yet. Focus Shield currently works in Google Chrome and Safari.</p></details>
+        <details><summary>Does it block anything on my iPhone?</summary><p>No, it only runs on your Mac. On iPhone, you can use Screen Time in Settings to set limits.</p></details>
+        <details><summary>I clicked “Don't Allow” by mistake. How do I fix it?</summary><p>The shield in your menu bar will show a small “!”. Click it and choose “Grant Automation Access…”. That opens the right page in System Settings, where you can switch on Chrome and Safari under Focus Shield.</p></details>
+        <details><summary>How do I remove it?</summary><p>Pause the shield, click the shield icon and choose “Quit Focus Shield”. Then open your Applications folder and drag Focus Shield to the Trash.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Closing -->
+  <section class="closing numbers" aria-label="Closing">
+    <div class="wrap">
+      <blockquote>
+        “My experience is what I agree to attend to.”
+        <footer>William James, <i>The Principles of Psychology</i>, 1890</footer>
+      </blockquote>
+      <a class="btn btn-primary download-link" href="#install">
+        <svg width="20" height="20" aria-hidden="true"><use href="#download"/></svg>
+        Download Focus Shield
+      </a>
+      <p class="eyebrow" style="margin-top:56px">The ideas inside come from</p>
+      <ul class="shelf">
+        <li><i>The Anxious Generation</i> · Jonathan Haidt</li>
+        <li><i>Stolen Focus</i> · Johann Hari</li>
+        <li><i>Attention Span</i> · Gloria Mark</li>
+        <li><i>Deep Work</i> · Cal Newport</li>
+        <li><i>Digital Minimalism</i> · Cal Newport</li>
+        <li><i>The Attention Merchants</i> · Tim Wu</li>
+        <li><i>Irresistible</i> · Adam Alter</li>
+        <li><i>Dopamine Nation</i> · Anna Lembke</li>
+        <li><i>Four Thousand Weeks</i> · Oliver Burkeman</li>
+        <li><i>How to Do Nothing</i> · Jenny Odell</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span>Focus Shield · Made by Vivek Juneja · <a href="https://github.com/vivekjuneja/focus-shield">Source code on GitHub</a></span>
+    <span>Not affiliated with YouTube, Netflix, X or Amazon. Book quotes are credited to their authors.</span>
+  </div>
+</footer>
+
+<script>
+  // The one place to change where downloads come from.
+  const DOWNLOAD_URL = "https://github.com/vivekjuneja/focus-shield/releases/latest/download/FocusShield.dmg";
+  document.querySelectorAll(".download-link").forEach(a => {
+    if (!a.closest("nav")) a.href = DOWNLOAD_URL;
+  });
+
+  // Hero: noise drifts away, leaving the calm menu.
+  const stage = document.getElementById("stage");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) stage.classList.add("calm");
+  else setTimeout(() => {
+    stage.querySelectorAll(".noise").forEach(n => {
+      n.style.transform = `translate(${n.style.getPropertyValue("--dx")}, ${n.style.getPropertyValue("--dy")})`;
+    });
+    stage.classList.add("calm");
+  }, 1600);
+
+  // Demo: a working copy of the app's pause flow.
+  const facts = [
+    { icon: '<path d="M12 7v5l3 2M9 2h6M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/>', headline: "47 seconds",
+      body: "That's how long the average person now focuses on a single screen before switching to something else. In 2004 it was about two and a half minutes.",
+      source: "Gloria Mark, Attention Span (2023)" },
+    { icon: '<path d="M4 6h16v12H4zM10 9.5v5l4.5-2.5z"/>', headline: "70% of watch time",
+      body: "YouTube's chief product officer said more than 70% of time spent watching YouTube is driven by its recommendation algorithm. You rarely choose the next video. It chooses you.",
+      source: "Neal Mohan, YouTube (CES 2018)" },
+    { icon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>', headline: "The opportunity cost",
+      body: "Haidt's deepest warning isn't only about what screens do. It's about what they displace: sleep, friendship, play, reading, deep thought. What will this next hour replace?",
+      source: "Jonathan Haidt, The Anxious Generation (2024)" },
+  ];
+  const body = document.getElementById("appbody");
+  const win = document.getElementById("appwin");
+  let step = 0, timer = null;
+
+  function dots() {
+    return '<div class="dots" aria-hidden="true">' + [0,1,2,3].map(i =>
+      `<i class="${i <= step ? "on" : ""} ${i === step ? "now" : ""}"></i>`).join("") + "</div>";
+  }
+  function render() {
+    clearInterval(timer);
+    win.dataset.palette = String(Math.min(step, 2));
+    if (step < 3) {
+      const f = facts[step];
+      body.innerHTML = dots() +
+        `<p class="appeyebrow">BEFORE YOU PAUSE THE SHIELD · ${step + 1} OF 3</p>
+         <div class="factcard">
+           <div class="ficon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${f.icon}</svg></div>
+           <h3>${f.headline}</h3><p>${f.body}</p><cite>— ${f.source}</cite>
+         </div>
+         <p class="ask">Do you really want to turn off the shield?</p>
+         <div class="appbtns">
+           <button class="pill pill-solid" id="stay">You're right, keep me focused</button>
+           <button class="pill pill-ghost" id="more" disabled></button>
+         </div>`;
+      const more = document.getElementById("more");
+      let left = 3;
+      const label = () => left > 0 ? `Take a moment to read… ${left}`
+        : step < 2 ? "I'm not convinced yet, show me another" : "I still want to pause it";
+      more.textContent = label();
+      timer = setInterval(() => { left--; more.textContent = label(); if (left <= 0) { more.disabled = false; clearInterval(timer); } }, 1000);
+      more.onclick = () => { step++; render(); };
+      document.getElementById("stay").onclick = done;
+    } else {
+      body.innerHTML = dots() +
+        `<p class="appeyebrow">YOUR CHOICE</p>
+         <div class="center">
+           <div class="ficon" style="width:64px;height:64px;border-radius:50%"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></svg></div>
+           <h3>Okay. How long do you need?</h3>
+           <p>The shield turns itself back on when the time is up.</p>
+         </div>
+         <div class="durations">
+           <button class="dur" data-min="30"><strong>30 minutes</strong><span>A short break</span></button>
+           <button class="dur" data-min="60"><strong>1 hour</strong><span>Then back to focus</span></button>
+         </div>
+         <div class="appbtns"><button class="pill pill-solid" id="stay">Actually, keep me focused</button></div>`;
+      document.getElementById("stay").onclick = done;
+      body.querySelectorAll(".dur").forEach(b => b.onclick = () => finish(
+        `Paused for ${b.dataset.min === "60" ? "1 hour" : "30 minutes"}.`,
+        "Enjoy it. When the time is up, the shield comes back on by itself."));
+    }
+  }
+  function done() { finish("Good choice.", "The shield stays on. Your attention stays yours."); }
+  function finish(title, text) {
+    clearInterval(timer);
+    body.innerHTML = `<div class="center" style="padding-top:120px">
+        <div class="ficon" style="width:64px;height:64px;border-radius:50%"><svg width="30" height="30" viewBox="0 0 24 24" color="#fff"><use href="#shield"/></svg></div>
+        <h3>${title}</h3><p>${text}</p>
+        <button class="pill pill-ghost" id="again" style="margin-top:10px">Try the demo again</button></div>`;
+    document.getElementById("again").onclick = () => { step = 0; render(); };
+  }
+  render();
+</script>
+</body>
+</html>
