@@ -4,7 +4,7 @@ A small macOS menu bar app that blocks YouTube, Netflix, X and Prime Video in Ch
 To pause it, you first read three facts about attention (from Jonathan Haidt, Johann Hari, Cal Newport,
 Gloria Mark and others), then choose 30 minutes or 1 hour. The shield turns itself back on afterwards.
 
-**Download:** https://vivekjuneja.github.io/focus-shield
+**Download:** https://shieldfocus.app
 
 ## How it works
 
