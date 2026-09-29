@@ -32,7 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
     private func tickClock() {
         if let until = state.pausedUntil, Date() >= until {
             state.resume()
-            notify(title: "Focus Shield is back on", body: "Break's over. YouTube, Netflix, X and Prime Video are blocked again.")
+            notify(title: "Focus Shield is back on", body: "Break's over. YouTube, Netflix, X, Instagram, LinkedIn and Prime Video are blocked again.")
         }
         refreshStatusButton()
     }
@@ -67,7 +67,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
 
         if state.isBlocking {
             menu.addItem(disabledItem("🛡️  Shield is ON"))
-            menu.addItem(disabledItem("Blocking YouTube, Netflix, X and Prime Video"))
+            menu.addItem(disabledItem("Blocking YouTube, Netflix, X, Instagram, LinkedIn and Prime Video"))
             menu.addItem(.separator())
             menu.addItem(item("Pause the Shield…", #selector(beginDisable)))
         } else {

@@ -36,6 +36,8 @@ enum BlockList {
         "youtube.com", "youtu.be", "youtube-nocookie.com",
         "netflix.com",
         "x.com", "twitter.com", "t.co",
+        "instagram.com", "instagr.am",
+        "linkedin.com", "lnkd.in",
         "primevideo.com",
     ]
 
