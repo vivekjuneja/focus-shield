@@ -121,6 +121,22 @@
     html { scroll-behavior: auto; }
   }
 
+  .news { justify-self: start; display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px;
+          background: var(--paper); border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 15px; box-shadow: var(--shadow); }
+  .news span { padding: 4px 10px; border-radius: 999px; background: var(--indigo); color: var(--on-indigo); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .news:hover { border-color: var(--indigo); }
+
+  /* ---------- What it blocks ---------- */
+  .blocks { padding-block: 40px; border-top: 1px solid var(--line); }
+  .blocks .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; }
+  .blocks .eyebrow { flex: none; }
+  .sites { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; }
+  .sites li { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: 16px;
+              background: var(--paper); border: 1px solid var(--line); }
+  .sites li.new { border-color: var(--indigo); }
+  .sites li.new em { font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--indigo); }
+  .blocks .note { font-size: 14px; color: var(--slate); }
+
   /* ---------- Numbers ---------- */
   .numbers { background: var(--paper); border-block: 1px solid var(--line); }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
@@ -273,7 +289,7 @@
   <header class="hero">
     <div class="wrap">
       <div class="hero-copy">
-        <p class="eyebrow">A free app for your Mac</p>
+        <a class="news" href="#blocks"><span>New in 1.1</span>Now blocks Instagram and LinkedIn too</a>
         <h1>The internet is built to take your attention. <em>Take it back.</em></h1>
         <p class="lede">Focus Shield sits quietly in your Mac's menu bar and blocks YouTube, Netflix, X, Instagram, LinkedIn and Prime Video. When you're tempted to switch it off, it shows you three short ideas from the best books on attention, then asks if you're sure.</p>
         <div class="cta-row">
@@ -307,11 +323,28 @@
         <div class="noise" style="top:47%;left:14%;--dx:-160px;--dy:30px">Trending now: you won't believe… </div>
         <div class="noise" style="top:58%;left:50%;--dx:170px;--dy:40px">Next episode starting <b>3</b></div>
         <div class="noise" style="top:70%;left:6%;--dx:-150px;--dy:80px">Someone replied to you <b>1</b></div>
-        <div class="noise" style="top:40%;left:3%;--dx:-120px;--dy:-10px">Recommended for you</div>
+        <div class="noise" style="top:40%;left:3%;--dx:-120px;--dy:-10px">5 people viewed your profile <b>5</b></div>
+        <div class="noise" style="top:82%;left:40%;--dx:150px;--dy:90px">New stories from friends <b>8</b></div>
         <p class="stage-caption">Quiet. Just you and the thing you meant to do.</p>
       </div>
     </div>
   </header>
+
+  <!-- What it blocks -->
+  <section class="blocks" id="blocks" aria-labelledby="blocks-title">
+    <div class="wrap">
+      <p class="eyebrow" id="blocks-title">What it blocks</p>
+      <ul class="sites">
+        <li>YouTube</li>
+        <li>Netflix</li>
+        <li>X (Twitter)</li>
+        <li class="new">Instagram <em>New</em></li>
+        <li class="new">LinkedIn <em>New</em></li>
+        <li>Prime Video</li>
+      </ul>
+      <p class="note">In Chrome and Safari. Regular Amazon shopping still works.</p>
+    </div>
+  </section>
 
   <!-- Numbers -->
   <section class="numbers" aria-labelledby="numbers-title">
