@@ -9,8 +9,16 @@ Gloria Mark and others), then choose 30 minutes or 1 hour. The shield turns itse
 ## How it works
 
 The app checks the web address of each open Chrome and Safari tab about once a second, using Apple Events.
-Tabs on a blocked site are redirected to a local "Focus Shield is on" page. Nothing is stored or sent anywhere,
-and the app makes no network connections.
+Tabs on a blocked site are redirected to a local "Focus Shield is on" page. Nothing about your browsing is
+stored or sent anywhere. The only network request is a daily [Sparkle](https://sparkle-project.org) update check
+against https://shieldfocus.app/appcast.xml.
+
+## Releasing
+
+1. Bump `CFBundleShortVersionString` and `CFBundleVersion` in `Resources/Info.plist`.
+2. Write `release-notes/<version>.md` (one `- ` bullet per line).
+3. `./release.sh` builds, signs, notarizes and writes the update feed.
+4. `./publish.sh` creates the GitHub release, then pushes the feed so installed copies update.
 
 ## Building
 

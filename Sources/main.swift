@@ -1,17 +1,20 @@
 import AppKit
 import ServiceManagement
+import Sparkle
 import SwiftUI
 import UserNotifications
 
-final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWindowDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWindowDelegate, SPUUpdaterDelegate {
     private let state = ShieldState.shared
     private let blocker = BrowserBlocker()
     private var statusItem: NSStatusItem!
     private var clock: Timer?
     private var persuasionWindow: NSWindow?
+    private var updaterController: SPUStandardUpdaterController!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         BlockedPage.install()
+        updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: nil)
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         let menu = NSMenu()
@@ -86,6 +89,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         let login = item("Launch at Login", #selector(toggleLaunchAtLogin))
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(login)
+
+        let updates = NSMenuItem(title: "Check for Updates…",
+                                 action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)), keyEquivalent: "")
+        updates.target = updaterController
+        menu.addItem(updates)
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        menu.addItem(disabledItem("Version \(version)"))
 
         // Quitting would bypass the shield, so it's only offered while paused.
         if !state.isBlocking {
@@ -176,6 +186,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
 
     @objc private func quit() {
         NSApp.terminate(nil)
+    }
+
+    // MARK: Updates
+
+    /// A menu bar app rarely quits, so install downloaded updates right away instead of
+    /// waiting for quit. Sparkle relaunches the app; shield state lives in UserDefaults.
+    func updater(_ updater: SPUUpdater, willInstallUpdateOnQuit item: SUAppcastItem,
+                 immediateInstallationBlock immediateInstallHandler: @escaping () -> Void) -> Bool {
+        immediateInstallHandler()
+        return true
     }
 
     private func notify(title: String, body: String) {
