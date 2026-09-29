@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Focus Shield</title>
+    <link>https://shieldfocus.app/appcast.xml</link>
+    <item>
+      <title>Version 1.2</title>
+      <pubDate>Tue, 29 Sep 2026 17:25:50 +0000</pubDate>
+      <sparkle:version>3</sparkle:version>
+      <sparkle:shortVersionString>1.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<ul><li>Focus Shield now updates itself automatically. It checks once a day and installs new versions in the background.</li>
+<li>New "Check for Updates…" item and version number in the menu</li></ul>]]></description>
+      <enclosure url="https://github.com/vivekjuneja/focus-shield/releases/download/v1.2/FocusShield.dmg"
+                 type="application/octet-stream" sparkle:edSignature="jo32wj3MpjLexg+Z3Bn1/Q/Apw7RPttimrYi5VJlNbHt95FDo9bnYE6yG6BsofxZIVV+zMyhvaZV7CDevNU+BA==" length="2598867" />
+    </item>
+  </channel>
+</rss>
