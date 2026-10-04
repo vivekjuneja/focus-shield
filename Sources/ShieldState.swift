@@ -41,6 +41,11 @@ enum BlockList {
         "primevideo.com",
     ]
 
+    /// Hosts under a blocked domain that carry no content. Google's sign-in flow
+    /// (e.g. Firebase, Google Cloud) hops through accounts.youtube.com to set the
+    /// session cookie; blocking it breaks logging in to unrelated sites.
+    static let exemptHosts: Set<String> = ["accounts.youtube.com"]
+
     /// Prime Video also lives under amazon.<tld>; only the video paths are blocked
     /// so regular shopping still works.
     static let amazonVideoPaths = ["/gp/video", "/prime-video", "/amazon-video", "/primevideo"]
@@ -50,6 +55,7 @@ enum BlockList {
               let scheme = url.scheme?.lowercased(), scheme == "http" || scheme == "https",
               let host = url.host?.lowercased() else { return false }
 
+        if exemptHosts.contains(host) { return false }
         if domains.contains(where: { host == $0 || host.hasSuffix("." + $0) }) {
             return true
         }
