@@ -3,6 +3,7 @@
 A small macOS menu bar app that blocks YouTube, Netflix, X, Instagram, LinkedIn and Prime Video in Chrome and Safari.
 To pause it, you first read three facts about attention (from Jonathan Haidt, Johann Hari, Cal Newport,
 Gloria Mark and others), then choose 30 minutes or 1 hour. The shield turns itself back on afterwards.
+While paused, you can extend the pause by 30 minutes from the menu.
 
 **Download:** https://shieldfocus.app
 

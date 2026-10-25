@@ -49,14 +49,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         button.imagePosition = .imageLeading
 
         if !blocking {
-            button.title = " " + Self.format(state.remainingPause)
-            button.font = .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+            let remaining = state.remainingPause
+            var attributes: [NSAttributedString.Key: Any] = [
+                .font: NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular),
+            ]
+            // Warn when the shield is about to come back on: the timer flashes red,
+            // alternating with the normal menu bar text color every second.
+            if remaining <= Self.warningThreshold, Int(remaining.rounded(.up)) % 2 == 0 {
+                attributes[.foregroundColor] = NSColor.systemRed
+            }
+            button.attributedTitle = NSAttributedString(string: " " + Self.format(remaining), attributes: attributes)
         } else if !blocker.deniedBrowsers.isEmpty {
             button.title = " !"
         } else {
             button.title = ""
         }
     }
+
+    private static let warningThreshold: TimeInterval = 3 * 60
+    private static let extensionMinutes = 30
 
     private static func format(_ interval: TimeInterval) -> String {
         let total = Int(interval.rounded(.up))
@@ -76,6 +87,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         } else {
             menu.addItem(disabledItem("⏸  Shield paused — back on in \(Self.format(state.remainingPause))"))
             menu.addItem(.separator())
+            menu.addItem(item("Extend Pause by \(Self.extensionMinutes) Minutes", #selector(extendPause)))
             menu.addItem(item("Turn the Shield Back On Now", #selector(resumeNow)))
         }
 
@@ -156,6 +168,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         if (notification.object as? NSWindow) === persuasionWindow {
             persuasionWindow = nil
         }
+    }
+
+    @objc private func extendPause() {
+        state.extendPause(minutes: Self.extensionMinutes)
+        refreshStatusButton()
     }
 
     @objc private func resumeNow() {

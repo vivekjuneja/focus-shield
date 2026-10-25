@@ -26,6 +26,13 @@ final class ShieldState {
         pausedUntil = Date().addingTimeInterval(TimeInterval(minutes * 60))
     }
 
+    /// Adds time to a running pause. Does nothing while blocking: turning the shield
+    /// off again has to go through the normal pause flow.
+    func extendPause(minutes: Int) {
+        guard !isBlocking, let until = pausedUntil else { return }
+        pausedUntil = until.addingTimeInterval(TimeInterval(minutes * 60))
+    }
+
     func resume() {
         pausedUntil = nil
     }
