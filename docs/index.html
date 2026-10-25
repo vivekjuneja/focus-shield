@@ -121,9 +121,9 @@
     html { scroll-behavior: auto; }
   }
 
-  .news { justify-self: start; display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px;
+  .news { justify-self: start; max-width: 100%; display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px;
           background: var(--paper); border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 15px; box-shadow: var(--shadow); }
-  .news span { padding: 4px 10px; border-radius: 999px; background: var(--indigo); color: var(--on-indigo); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .news span { flex: none; white-space: nowrap; padding: 4px 10px; border-radius: 999px; background: var(--indigo); color: var(--on-indigo); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
   .news:hover { border-color: var(--indigo); }
 
   /* ---------- What it blocks ---------- */
@@ -289,7 +289,7 @@
   <header class="hero">
     <div class="wrap">
       <div class="hero-copy">
-        <a class="news" href="#how"><span>New in 1.3</span>Extend a pause by 30 minutes, and a red warning before it ends</a>
+        <a class="news" href="#how"><span>New in 1.3</span>Extend a pause, with a red warning before it ends</a>
         <h1>The internet is built to take your attention. <em>Take it back.</em></h1>
         <p class="lede">Focus Shield sits quietly in your Mac's menu bar and blocks YouTube, Netflix, X, Instagram, LinkedIn and Prime Video. When you're tempted to switch it off, it shows you three short ideas from the best books on attention, then asks if you're sure.</p>
         <div class="cta-row">
